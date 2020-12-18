@@ -1,14 +1,15 @@
-// Store API endpoint inside queryUrl
-var earthquakeURL = "https://https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"
+// Store API endpoint
+var earthquakeURL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"
 
-
+// ----------------------------------
 // Get request for data
 d3.json(earthquakeURL, function(data) {
-    console.log(data)
     createFeatures(data);
-  });
+    console.log(data)
+});
 
-  
+// ----------------------------------
+// Create function to style features 
 function createFeatures(earthquakeData) {
 
   function onEachFeature(feature, layer) {
@@ -42,10 +43,27 @@ function createFeatures(earthquakeData) {
       return "white"
     }
   }
+
+  // Create geoJSON layer
+  var earthquakes = L.geoJSON(earthquakeData, {
+    pointToLayer: function(earthquakeData, latlng) {
+      return L.circle(latlng, {
+        radius: circleSize(earthquakeData.properties.mag),
+        color: circleColor(earthquakeData.properties.mag),
+      });
+    },
+    onEachFeature: onEachFeature
+  });
+
+  createMap(earthquakes);
 }
-  
-// Adding tile layer to the map
-L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+
+// ----------------------------------
+// Create map 
+function createMap(earthquakes) {
+
+  // Add tile layers 
+  var streetMap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
     attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
     tileSize: 512,
     maxZoom: 18,
@@ -54,59 +72,48 @@ L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
     accessToken: API_KEY
   }).addTo(myMap);
 
-// Adding tile layer to the map
-L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
-    attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
-    tileSize: 512,
+  var lightmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+    attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
     maxZoom: 18,
-    zoomOffset: -1,
-    id: "mapbox/satellite",
+    id: "mapbox.light",
     accessToken: API_KEY
+  });  
+
+  var outdoors = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+    attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+    maxZoom: 18,
+    id: "mapbox.outdoors",
+    accessToken: API_KEY
+  }); 
+
+  // Create baseMaps object to hold base layers
+  var baseMaps = {
+    "Street Map": streetMap,
+    "Light": lightmap,
+    "Outdoors": outdoors
+  };
+
+  // Create overlay object to hold overlay layer
+  var overlayMaps = {
+    Earthquakes: earthquakes
+  };
+
+  // Create map object
+  var myMap = L.map("map", {
+    center: [40.7, -73.95],
+    zoom: 11
+  });
+  
+  // Add layer control
+  L.control.layers(baseMaps, overlayMaps, {
+    collapsed: true
   }).addTo(myMap);
 
+}  
 
-
-// Define variable for API endpoint
-
-// GET request the URL and send data.features object to createFeatures function
-  // 
-
-
-
-// Define a function to run once for each feature in the features array
-// Give each feature a popup describing the place and time of earthquake
-
-// Create a GeoJSON layer containing the features array on the dearthquakeData object
-// Run the onEachFeature function once for each piece of data in the array
-
-// Send earthquakes layer to the createMap function
-
-// Define streetmap and lightmap layers
-
-//Define baseMaps object to hold base layers
-
-//Create overlay object to hold overlay layer
-
-// Create map object, giving it the streetma and earthquakes layers to display on load
-var myMap = L.map("map", {
-  center: [40.7, -73.95],
-  zoom: 11
-  layers: [lightmap, earthQuakes]
-});
-
-
-// Create a layer control
-// Pass in baseMaps and overlayMaps
-// Add the layer control to the map
-L.control.layers(baseMaps, overlayMaps, {
-  collapsed: true
-}).addTo(myMap);
-
-// Set up the legend
+// ----------------------------------
+// Create Legend 
 
 
 
-  // Add legend
-
-
-
+// Add legend
