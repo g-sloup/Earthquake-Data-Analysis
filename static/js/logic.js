@@ -19,7 +19,7 @@ function createFeatures(earthquakeData) {
 
   // Create radius function
   function circleSize(magnitude) {
-    return magnitude * 200000
+    return magnitude * 15000
   }
 
   // Create circle color function
@@ -50,6 +50,8 @@ function createFeatures(earthquakeData) {
       return L.circle(latlng, {
         radius: circleSize(earthquakeData.properties.mag),
         color: circleColor(earthquakeData.properties.mag),
+        fillOpacity: .5,
+        weight: .5,
       });
     },
     onEachFeature: onEachFeature
@@ -100,20 +102,15 @@ function createMap(earthquakes) {
 
   // Create map object
   var myMap = L.map("map", {
-    center: [40.7, -73.95],
-    zoom: 11,
+    center: [37.97,-111.40],
+    zoom: 5,
     layers: [streetmap, lightmap]
   });
-  
-  // Add layer control
-  L.control.layers(baseMaps, overlayMaps) 
-    .addTo(myMap);
 
+  // Add layer control
+  L.control.layers(baseMaps, overlayMaps, {
+    collapsed: false
+  }).addTo(myMap);
+  
 } 
   
-// ----------------------------------
-// Create Legend 
-
-
-
-// Add legend
